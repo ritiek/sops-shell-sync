@@ -239,7 +239,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "shell-sops"
+name = "sops-shell"
 version = "0.1.0"
 dependencies = [
  "anyhow",

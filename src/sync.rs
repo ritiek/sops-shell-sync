@@ -156,7 +156,7 @@ fn print_summary(files_count: usize, total_secrets: usize, total_updates: usize,
         println!("  Secrets out of sync: {}", total_updates);
 
         if total_updates > 0 {
-            println!("\nRun 'shell-sops sync <files>' to update");
+            println!("\nRun 'sops-shell sync <files>' to update");
         }
     } else {
         println!("  Files processed: {}", files_count);

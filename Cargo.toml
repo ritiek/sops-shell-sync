@@ -1,5 +1,5 @@
 [package]
-name = "shell-sops"
+name = "sops-shell"
 version = "0.1.0"
 edition = "2021"
 description = "Sync secrets from shell commands to SOPS encrypted files"
@@ -7,7 +7,7 @@ authors = ["Ritiek <ritiek@proton.me>"]
 license = "MIT"
 
 [[bin]]
-name = "shell-sops"
+name = "sops-shell"
 path = "src/main.rs"
 
 [dependencies]

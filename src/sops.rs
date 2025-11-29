@@ -18,6 +18,10 @@ pub fn sops_set(filepath: &Path, key: &str, value: &str) -> Result<()> {
 }
 
 fn run_sops_command(args: Vec<&str>) -> Result<String> {
+    if Command::new("sops").arg("--version").output().is_err() {
+        return Err(anyhow!("SOPS command not found. Please install SOPS or ensure it's in PATH"));
+    }
+
     let output = Command::new("sops")
         .args(args)
         .output()
