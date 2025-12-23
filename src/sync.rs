@@ -174,6 +174,24 @@ pub fn check_files(files: &[impl AsRef<Path>]) -> Result<()> {
     process_files(files, true)
 }
 
+fn print_summary(files_count: usize, total_secrets: usize, total_updates: usize, dry_run: bool) {
+    println!("\n{}", "=".repeat(60));
+    println!("Summary:");
+    if dry_run {
+        println!("  Files checked: {}", files_count);
+        println!("  Secrets checked: {}", total_secrets);
+        println!("  Secrets out of sync: {}", total_updates);
+
+        if total_updates > 0 {
+            println!("\nRun 'sops-shell sync <files>' to update");
+        }
+    } else {
+        println!("  Files processed: {}", files_count);
+        println!("  Secrets checked: {}", total_secrets);
+        println!("  Secrets updated: {}", total_updates);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -323,23 +341,5 @@ key: ENC[AES256_GCM,data:test,iv:test,tag:test,type:str]"#;
             let result = has_comment_lines(temp_file.path()).expect("Should not fail");
             assert!(!result, "Large file without comments should return false");
         }
-    }
-}
-
-fn print_summary(files_count: usize, total_secrets: usize, total_updates: usize, dry_run: bool) {
-    println!("\n{}", "=".repeat(60));
-    println!("Summary:");
-    if dry_run {
-        println!("  Files checked: {}", files_count);
-        println!("  Secrets checked: {}", total_secrets);
-        println!("  Secrets out of sync: {}", total_updates);
-
-        if total_updates > 0 {
-            println!("\nRun 'sops-shell sync <files>' to update");
-        }
-    } else {
-        println!("  Files processed: {}", files_count);
-        println!("  Secrets checked: {}", total_secrets);
-        println!("  Secrets updated: {}", total_updates);
     }
 }
