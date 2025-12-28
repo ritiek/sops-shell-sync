@@ -35,15 +35,30 @@ pub fn parse_commands(decrypted_content: &str) -> Result<Vec<CommandMapping>> {
 }
 
 fn find_next_key<'a>(lines: &'a [&'a str], start_idx: usize) -> Option<&'a str> {
-    let key_regex = Regex::new(r"^\s*([^:=\s]+)\s*[:=]").ok()?;
-
-    for line in lines.iter().skip(start_idx) {
+    // Check the immediate next line(s) - if they're all comments, skip this mapping
+    let mut first_non_empty_idx = None;
+    for (offset, line) in lines.iter().skip(start_idx).enumerate() {
         let stripped = line.trim();
 
-        if stripped.is_empty() || stripped.starts_with('#') {
+        // Skip empty lines to find the first actual content line
+        if stripped.is_empty() {
             continue;
         }
 
+        // If the first non-empty line is a comment, skip this mapping
+        if stripped.starts_with('#') || stripped.starts_with(';') {
+            return None;
+        }
+
+        // Otherwise, this is the line we want to check for a key
+        first_non_empty_idx = Some(start_idx + offset);
+        break;
+    }
+
+    // If we found a non-empty, non-commented line, check if it's a key
+    if let Some(idx) = first_non_empty_idx {
+        let stripped = lines.get(idx)?.trim();
+        let key_regex = Regex::new(r"^\s*([^:=\s]+)\s*[:=]").ok()?;
         if let Some(captures) = key_regex.captures(stripped) {
             return Some(captures.get(1)?.as_str());
         }

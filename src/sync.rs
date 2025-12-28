@@ -342,4 +342,42 @@ key: ENC[AES256_GCM,data:test,iv:test,tag:test,type:str]"#;
             assert!(!result, "Large file without comments should return false");
         }
     }
+
+    mod skip_commented_key_mappings {
+        use crate::parser::parse_commands;
+
+        #[test]
+        fn test_ini_skip_when_next_key_commented() {
+            let content = r#"[config]
+resolution = 1920x1080
+; shell: echo hi
+; val = hi
+fps = 120"#;
+
+            let mappings = parse_commands(content).expect("Should parse successfully");
+            assert_eq!(mappings.len(), 0, "Should skip INI mapping when next key is commented");
+        }
+
+        #[test]
+        fn test_env_skip_when_next_key_commented() {
+            let content = r#"MEILI_MASTER_KEY=ENC[AES256_GCM,data:test1,iv:test,tag:test,type:str]
+# shell: rbw get 79da561c-beaa-430e-9ee9-fa2a218eb700 --field "API Key"
+# OPENAI_API_KEY=ENC[AES256_GCM,data:test2,iv:test,tag:test,type:str]
+NEXTAUTH_URL=ENC[AES256_GCM,data:test3,iv:test,tag:test,type:str]"#;
+
+            let mappings = parse_commands(content).expect("Should parse successfully");
+            assert_eq!(mappings.len(), 0, "Should skip ENV mapping when next key is commented");
+        }
+
+        #[test]
+        fn test_yaml_skip_when_next_key_commented() {
+            let content = r#"key1: ENC[AES256_GCM,data:test,iv:test,tag:test,type:str]
+# shell: echo "secret_value"
+# key2: ENC[AES256_GCM,data:commented_secret,iv:test,tag:test,type:str]
+key3: ENC[AES256_GCM,data:value3,iv:test,tag:test,type:str]"#;
+
+            let mappings = parse_commands(content).expect("Should parse successfully");
+            assert_eq!(mappings.len(), 0, "Should skip YAML mapping when next key is commented");
+        }
+    }
 }
